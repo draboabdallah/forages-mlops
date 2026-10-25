@@ -313,7 +313,7 @@ def main() -> None:
     s = d.slide("Qualité : tests, intégration continue et garde-fou", "J3-J4 · Tests et CI")
     d.card(s, str(n_tests), "tests pytest (données, métriques, pipeline, API, dérive, performance)", 0.6, 1.6, 3.6)
     d.card(s, "Reproductible", "la CI ré-entraîne depuis zéro et compare aux métriques livrées", 0.6, 3.05, 3.6)
-    d.card(s, "Docker", "image construite, démarrée et interrogée par la CI", 0.6, 4.5, 3.6, color=NAVY)
+    d.card(s, "Docker", "image construite, démarrée et interrogée (CI et en local)", 0.6, 4.5, 3.6, color=NAVY)
     d.bullets(s, [
         "Garde-fou de performance : la CI échoue si le modèle passe sous",
         "  PR-AUC 0,55 · ROC-AUC 0,70 · rappel 0,75 · gain sur le hasard 0,15",

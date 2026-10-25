@@ -123,6 +123,8 @@ docker build -t forages-api .
 docker run -p 8000:8000 forages-api
 ```
 
+L'image a été construite et testée par la CI et en local (conteneur démarré, API interrogée, contrôle de santé `healthy`).
+
 L'image (python:3.12-slim) n'embarque que le code du service, le modèle et les dépendances minimales
 (`requirements-api.txt`). Elle tourne sans droits root et déclare un `HEALTHCHECK` sur `/health`.
 
