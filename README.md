@@ -16,6 +16,8 @@ une API FastAPI, testé, conteneurisé, intégré en continu et surveillé.
 | Modèle retenu | régression logistique, PR-AUC test 0,606, rappel 0,81, précision 0,51 | [reports/model_selection.md](reports/model_selection.md) |
 | Suivi | 6 runs MLflow, modèle enregistré avec l'alias `champion` | `mlflow ui` |
 | API | `/v1/predict`, `/v1/model`, `/health` | http://localhost:8000/docs |
+| Dérive (nouveau mois) | `usagers_jour` +33 % (PSI 0,39) : décision RE-ENTRAINER | [reports/drift_report.md](reports/drift_report.md) |
+| Ré-entraînement | challenger +0,008 de PR-AUC, sous le seuil de +0,01 : champion conservé | [reports/retrain_report.md](reports/retrain_report.md) |
 
 Tous les chiffres de ce dépôt sont produits par les scripts ci-dessous : aucun résultat n'est saisi à la main.
 
@@ -32,6 +34,8 @@ forages/
   train.py                J2 : essais MLflow, sélection, registre, sauvegarde du modèle
   predict.py              chargement du modèle et scoring
   api/                    J3 : API FastAPI (schemas.py, main.py)
+  drift.py                J5 : dérive des données, des prédictions et des performances, règle de décision
+  retrain.py              J5 : ré-entraînement champion / challenger
 models/                   modèle retenu (model.joblib) et ses métadonnées (metadata.json)
 reports/                  rapports générés et figures
 tests/                    tests pytest (données, modèle, API, garde-fou de performance)
@@ -53,6 +57,8 @@ pip install -r requirements.txt
 python -m forages.explore      # J1 : exploration, fuites, métrique, modèles de référence -> reports/eda.md
 python -m forages.train        # J2 : runs MLflow, choix du modèle -> models/, reports/model_selection.md
 python -m pytest               # J3/J4 : tests + garde-fou de performance
+python -m forages.drift        # J5 : dérive du nouveau mois et décision -> reports/drift_report.md
+python -m forages.retrain      # J5 : challenger ré-entraîné, promu seulement s'il gagne -> reports/retrain_report.md
 ```
 
 L'entraînement est déterministe (graine fixée, découpage stratifié figé) : relancer `python -m forages.train`
@@ -120,7 +126,36 @@ L'image (python:3.12-slim) n'embarque que le code du service, le modèle et les 
 2. ré-entraînement depuis zéro et vérification que les métriques sont identiques à celles du modèle livré ;
 3. **garde-fou de performance** (`tests/test_performance.py`) : la CI échoue si PR-AUC < 0,55, ROC-AUC < 0,70,
    rappel < 0,75 ou gain sur le hasard < 0,15 ;
-4. construction de l'image Docker, démarrage du conteneur et appels réels à l'API.
+4. rapport de dérive sur le dernier lot, publié avec les autres rapports comme artefact de la CI ;
+5. construction de l'image Docker, démarrage du conteneur et appels réels à l'API.
+
+## Surveillance et règle de ré-entraînement
+
+`python -m forages.drift --current <lot.csv>` compare un lot de forages aux données d'entraînement :
+
+- **dérive des variables** : PSI par variable (déciles de la référence), test de Kolmogorov-Smirnov (numériques)
+  ou du chi² (catégorielles) ;
+- **dérive des prédictions** : PSI des probabilités, part de forages à visiter ;
+- **performance**, quand les étiquettes sont connues (90 jours plus tard) : ROC-AUC, rappel, calibration.
+
+| Décision | Condition |
+|---|---|
+| **RE-ENTRAINER** | PSI d'une variable ≥ 0,25, ou rappel < 0,75, ou ROC-AUC en baisse de plus de 0,05, ou écart de calibration > ±0,05 |
+| **SURVEILLER** | PSI d'une variable ou des prédictions entre 0,10 et 0,25 |
+| **OK** | sinon |
+
+`--fail-on-retrain` renvoie un code de sortie 1 en cas de RE-ENTRAINER (pour un déclenchement automatique).
+
+Le ré-entraînement (`python -m forages.retrain`) suit un schéma **champion / challenger** : le challenger est appris
+sur l'historique et la moitié du lot récent, puis comparé au champion sur l'autre moitié, qu'aucun des deux n'a vue.
+Il n'est promu que s'il gagne au moins 0,01 de PR-AUC sans passer sous un rappel de 0,75 (`--promote` écrit alors
+le nouveau modèle dans `models/`). Le challenger est enregistré dans le registre MLflow avec l'alias `challenger`.
+
+**Sur le nouveau mois** : la population a changé (+33 % d'usagers par jour, plus de pannes passées), ce qui
+déclenche la règle. Mais le modèle reste performant (ROC-AUC 0,78, rappel 0,89) et bien calibré (écart −0,005) :
+il prédit déjà un risque plus élevé pour ces forages plus sollicités. Le challenger ne gagne que +0,008 de PR-AUC
+(intervalle de confiance à 95 % : [−0,003 ; +0,017]) et n'est pas promu. Conséquence opérationnelle : la part de
+forages signalés passe de 59 % à 72 %, ce qui oblige à prioriser les visites par probabilité décroissante.
 
 ## Choix et hypothèses
 
