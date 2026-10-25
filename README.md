@@ -40,7 +40,9 @@ forages/
   dashboard.py            bonus : tableau de bord HTML des forages à risque
 models/                   modèle retenu (model.joblib) et ses métadonnées (metadata.json)
 reports/                  rapports générés et figures
-tests/                    tests pytest (données, modèle, API, garde-fou de performance)
+tests/                    tests pytest (données, modèle, API, dérive, garde-fou de performance)
+soutenance/               support de soutenance généré par make_slides.py
+docs/                     énoncé du projet
 Dockerfile                image du service
 .github/workflows/ci.yml  intégration continue
 ```
@@ -62,6 +64,7 @@ python -m pytest               # J3/J4 : tests + garde-fou de performance
 python -m forages.drift        # J5 : dérive du nouveau mois et décision -> reports/drift_report.md
 python -m forages.retrain      # J5 : challenger ré-entraîné, promu seulement s'il gagne -> reports/retrain_report.md
 python -m forages.dashboard    # bonus : tableau de bord -> reports/dashboard_forages.html
+python soutenance/make_slides.py   # support de soutenance (10 diapositives) -> soutenance/soutenance.pptx
 ```
 
 L'entraînement est déterministe (graine fixée, découpage stratifié figé) : relancer `python -m forages.train`

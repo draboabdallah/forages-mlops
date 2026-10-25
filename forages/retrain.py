@@ -141,6 +141,10 @@ tirages : [{ci_low:+.3f} ; {ci_high:+.3f}] ; le challenger gagne dans {p_win:.0%
 {lecture}
 """
     (REPORTS_DIR / "retrain_report.md").write_text(report, encoding="utf-8")
+    summary = {"champion": champion.version, "registry_version_challenger": str(version), "promu": promote,
+               "gain_pr_auc": gain, "gain_ic95": [ci_low, ci_high], "part_tirages_gagnants": p_win,
+               "min_gain": MIN_PR_AUC_GAIN, "arbitre_champion": m_champ, "arbitre_challenger": m_chall}
+    (REPORTS_DIR / "retrain_report.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print(report)
 
 

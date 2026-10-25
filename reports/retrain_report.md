@@ -6,7 +6,7 @@ Déclencheur : décision `RE-ENTRAINER` du rapport de dérive ([drift_report.md]
 
 - Champion : `20261025-00c9d345` (logreg, seuil 0.276).
 - Challenger : même configuration, ré-entraîné sur 3000 forages historiques + 300 forages récents
-  (seuil recalculé 0.287) ; registre MLflow version 4, alias `challenger`.
+  (seuil recalculé 0.287) ; registre MLflow version 5, alias `challenger`.
 - Arbitre : 300 forages récents, vus par aucun des deux modèles.
 
 | métrique (arbitre) | champion actuel | challenger |
