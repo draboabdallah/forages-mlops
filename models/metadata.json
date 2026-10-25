@@ -1,0 +1,42 @@
+{
+  "model_name": "logreg",
+  "model_version": "20261025-00c9d345",
+  "registry_name": "forages-panne-90j",
+  "registry_version": "1",
+  "mlflow_run_id": "00c9d3459b2d44aaad4defd7424ba4b3",
+  "threshold": 0.2764643398773386,
+  "target_recall": 0.8,
+  "features": [
+    "age_ans",
+    "profondeur_m",
+    "debit_m3h",
+    "usagers_jour",
+    "jours_depuis_maintenance",
+    "pannes_12m",
+    "type_pompe",
+    "region"
+  ],
+  "cv_metrics": {
+    "pr_auc": 0.6513360551858225,
+    "roc_auc": 0.7542663962136579,
+    "recall": 0.8,
+    "precision": 0.49572649572649574,
+    "f2": 0.7125307125307125,
+    "brier": 0.18726342850005143,
+    "taux_alerte": 0.585,
+    "pr_auc_std": 0.027179672255870282
+  },
+  "test_metrics": {
+    "pr_auc": 0.6058882283631637,
+    "roc_auc": 0.7514890244488208,
+    "recall": 0.8073394495412844,
+    "precision": 0.5057471264367817,
+    "f2": 0.7213114754098361,
+    "brier": 0.19174596257456056,
+    "taux_alerte": 0.58
+  },
+  "trained_at": "2026-10-25T15:50:49+00:00",
+  "git_commit": "d960036",
+  "data_sha256": "6d6339672be0458a",
+  "sklearn_version": "1.9.0"
+}
