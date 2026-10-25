@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+
+# MLflow : le store local est régénéré par `python -m forages.train`
+mlflow.db
+mlruns/
+mlartifacts/
+
+# Divers
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
