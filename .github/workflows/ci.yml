@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Tests, entraînement et garde-fou
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Tests unitaires et API
+        run: python -m pytest -m "not performance" -v
+
+      - name: Sauvegarder les métriques du modèle livré
+        run: cp models/metadata.json /tmp/metadata_livre.json
+
+      - name: Ré-entraîner depuis zéro (reproductibilité)
+        run: python -m forages.train
+
+      - name: Vérifier que le ré-entraînement redonne le même modèle
+        run: |
+          python - <<'EOF'
+          import json
+          old = json.load(open("/tmp/metadata_livre.json"))
+          new = json.load(open("models/metadata.json"))
+          assert old["model_name"] == new["model_name"], (old["model_name"], new["model_name"])
+          for k in ("pr_auc", "roc_auc", "recall"):
+              diff = abs(old["test_metrics"][k] - new["test_metrics"][k])
+              print(f"{k}: livré={old['test_metrics'][k]:.4f} ré-entraîné={new['test_metrics'][k]:.4f}")
+              assert diff < 1e-3, f"{k} non reproductible ({diff:.5f})"
+          EOF
+
+      - name: Garde-fou de performance
+        run: python -m pytest -m performance -v
+
+      - name: Publier les rapports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapports
+          path: reports/
+
+  docker:
+    name: Image Docker
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construire l'image
+        run: docker build -t forages-api:${{ github.sha }} .
+
+      - name: Démarrer le conteneur et tester l'API
+        run: |
+          docker run -d --name api -p 8000:8000 forages-api:${{ github.sha }}
+          for i in $(seq 1 30); do curl -sf http://localhost:8000/health && break; sleep 1; done
+          curl -sf http://localhost:8000/health | grep '"model_loaded":true'
+          curl -sf -X POST http://localhost:8000/v1/predict \
+            -H "Content-Type: application/json" \
+            -d '{"forages":[{"age_ans":22,"profondeur_m":96,"debit_m3h":5.4,"usagers_jour":630,"jours_depuis_maintenance":420,"pannes_12m":2,"type_pompe":"thermique","region":"Est"}]}' \
+            | tee /dev/stderr | grep probabilite_panne
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8000/v1/predict -H 'Content-Type: application/json' -d '{"forages":[{"age_ans":-1}]}')" = "422"
+
+      - name: Journaux du conteneur
+        if: always()
+        run: docker logs api || true

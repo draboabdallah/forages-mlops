@@ -1,0 +1,11 @@
+# Dépendances minimales du service (image Docker). Versions identiques à requirements.txt
+# pour que le modèle sérialisé soit rechargé avec la même version de scikit-learn.
+numpy==2.4.4
+pandas==3.0.3
+scikit-learn==1.9.0
+scipy==1.18.0
+joblib==1.5.3
+fastapi==0.143.0
+starlette==1.7.0
+uvicorn==0.54.0
+pydantic==2.13.5
