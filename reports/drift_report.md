@@ -11,6 +11,7 @@ Raisons de ré-entraîner :
 - dérive majeure de `usagers_jour` (PSI 0.39 ≥ 0.25)
 
 Points de vigilance :
+- 26% des valeurs de `usagers_jour` hors de la plage d'entraînement
 - dérive modérée de `pannes_12m` (PSI 0.12)
 - dérive modérée des prédictions (PSI 0.16)
 
@@ -18,18 +19,19 @@ Points de vigilance :
 
 PSI : < 0.1 stable, 0.1 à 0.25 modérée, ≥ 0.25 majeure. Test KS (numériques) ou du chi²
 (catégorielles) : une p-value < 0,05 signale une différence de distribution statistiquement significative. Pour les
-catégorielles, les colonnes de moyenne donnent la part de la modalité la plus fréquente.
+catégorielles, les colonnes de moyenne donnent la part de la modalité la plus fréquente. `hors_plage` : part du lot
+courant en dehors des valeurs vues à l'entraînement (min-max ou modalités) ; le modèle y extrapole.
 
-| variable | réf. (moy. ou part) | courant | psi | p_value | test | niveau |
-|---|---|---|---|---|---|---|
-| usagers_jour | 483.959 | 642.553 | 0.392 | 0.000 | KS | majeure |
-| pannes_12m | 0.767 | 1.135 | 0.116 | 0.000 | KS | modérée |
-| jours_depuis_maintenance | 355.514 | 353.017 | 0.029 | 0.502 | KS | stable |
-| profondeur_m | 88.206 | 90.995 | 0.022 | 0.261 | KS | stable |
-| debit_m3h | 4.458 | 4.263 | 0.020 | 0.261 | KS | stable |
-| age_ans | 15.234 | 14.813 | 0.008 | 0.638 | KS | stable |
-| region | 0.262 | 0.232 | 0.008 | 0.271 | chi² | stable |
-| type_pompe | 0.496 | 0.522 | 0.005 | 0.305 | chi² | stable |
+| variable | réf. (moy. ou part) | courant | psi | p_value | test | hors_plage | niveau |
+|---|---|---|---|---|---|---|---|
+| usagers_jour | 483.959 | 642.553 | 0.392 | 0.000 | KS | 0.260 | majeure |
+| pannes_12m | 0.767 | 1.135 | 0.116 | 0.000 | KS | 0.003 | modérée |
+| jours_depuis_maintenance | 355.514 | 353.017 | 0.029 | 0.502 | KS | 0.000 | stable |
+| profondeur_m | 88.206 | 90.995 | 0.022 | 0.261 | KS | 0.000 | stable |
+| debit_m3h | 4.458 | 4.263 | 0.020 | 0.261 | KS | 0.000 | stable |
+| age_ans | 15.234 | 14.813 | 0.008 | 0.638 | KS | 0.000 | stable |
+| region | 0.262 | 0.232 | 0.008 | 0.271 | chi² | 0.000 | stable |
+| type_pompe | 0.496 | 0.522 | 0.005 | 0.305 | chi² | 0.000 | stable |
 
 ## Dérive des prédictions
 

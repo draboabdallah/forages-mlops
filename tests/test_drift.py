@@ -9,7 +9,7 @@ GOOD_PERF = {"roc_auc": 0.76, "recall": 0.82}
 
 
 def features(*psis):
-    return pd.DataFrame({"psi": psis}, index=[f"v{i}" for i in range(len(psis))])
+    return pd.DataFrame({"psi": psis, "hors_plage": 0.0}, index=[f"v{i}" for i in range(len(psis))])
 
 
 def test_psi_nul_sur_distributions_identiques():
@@ -49,3 +49,9 @@ def test_decision_reentrainer_sur_derive_majeure_sans_etiquettes():
 def test_decision_reentrainer_sur_baisse_de_performance(perf, gap):
     decision, reasons, _ = decide(features(0.01), 0.01, perf, REF_PERF, gap)
     assert decision == "RE-ENTRAINER" and len(reasons) == 1
+
+
+def test_decision_surveiller_sur_valeurs_hors_plage():
+    feats = features(0.01).assign(hors_plage=0.2)
+    decision, _, watch = decide(feats, 0.01, GOOD_PERF, REF_PERF, 0.0)
+    assert decision == "SURVEILLER" and "hors de la plage" in watch[0]

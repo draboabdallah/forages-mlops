@@ -76,7 +76,8 @@ def feature_drift(ref: pd.DataFrame, cur: pd.DataFrame) -> pd.DataFrame:
     for col in NUM_FEATURES:
         rows.append({"variable": col, "type": "numérique", "ref_moyenne": float(ref[col].mean()),
                      "courant_moyenne": float(cur[col].mean()), "psi": psi_numeric(ref[col], cur[col]),
-                     "p_value": float(ks_2samp(ref[col], cur[col]).pvalue), "test": "KS"})
+                     "p_value": float(ks_2samp(ref[col], cur[col]).pvalue), "test": "KS",
+                     "hors_plage": float(((cur[col] < ref[col].min()) | (cur[col] > ref[col].max())).mean())})
     for col in CAT_FEATURES:
         table = pd.concat([ref[col].value_counts(), cur[col].value_counts()], axis=1).fillna(0)
         top_ref = ref[col].value_counts(normalize=True)
@@ -84,7 +85,8 @@ def feature_drift(ref: pd.DataFrame, cur: pd.DataFrame) -> pd.DataFrame:
         rows.append({"variable": col, "type": "catégorielle",
                      "ref_moyenne": float(top_ref.iloc[0]), "courant_moyenne": float(top_cur.iloc[0]),
                      "psi": psi_categorical(ref[col], cur[col]),
-                     "p_value": float(chi2_contingency(table.to_numpy())[1]), "test": "chi²"})
+                     "p_value": float(chi2_contingency(table.to_numpy())[1]), "test": "chi²",
+                     "hors_plage": float((~cur[col].isin(ref[col].unique())).mean())})
     df = pd.DataFrame(rows).set_index("variable")
     df["niveau"] = df["psi"].map(psi_level)
     return df.sort_values("psi", ascending=False)
@@ -93,6 +95,8 @@ def feature_drift(ref: pd.DataFrame, cur: pd.DataFrame) -> pd.DataFrame:
 def decide(features: pd.DataFrame, pred_psi: float, perf: dict | None, ref_perf: dict, calibration_gap: float | None):
     reasons_retrain, reasons_watch = [], []
     for var, row in features.iterrows():
+        if row["hors_plage"] > 0.05:
+            reasons_watch.append(f"{row['hors_plage']:.0%} des valeurs de `{var}` hors de la plage d'entraînement")
         if row["psi"] >= PSI_ALERT:
             reasons_retrain.append(f"dérive majeure de `{var}` (PSI {row['psi']:.2f} ≥ {PSI_ALERT})")
         elif row["psi"] >= PSI_WARN:
@@ -204,7 +208,8 @@ Points de vigilance :
 
 PSI : < {PSI_WARN} stable, {PSI_WARN} à {PSI_ALERT} modérée, ≥ {PSI_ALERT} majeure. Test KS (numériques) ou du chi²
 (catégorielles) : une p-value < 0,05 signale une différence de distribution statistiquement significative. Pour les
-catégorielles, les colonnes de moyenne donnent la part de la modalité la plus fréquente.
+catégorielles, les colonnes de moyenne donnent la part de la modalité la plus fréquente. `hors_plage` : part du lot
+courant en dehors des valeurs vues à l'entraînement (min-max ou modalités) ; le modèle y extrapole.
 
 {md_table(table)}
 

@@ -8,6 +8,7 @@
     "dérive majeure de `usagers_jour` (PSI 0.39 ≥ 0.25)"
   ],
   "points_de_vigilance": [
+    "26% des valeurs de `usagers_jour` hors de la plage d'entraînement",
     "dérive modérée de `pannes_12m` (PSI 0.12)",
     "dérive modérée des prédictions (PSI 0.16)"
   ],
@@ -20,6 +21,7 @@
       "psi": 0.3924948864363079,
       "p_value": 5.235077337347843e-29,
       "test": "KS",
+      "hors_plage": 0.26,
       "niveau": "majeure"
     },
     {
@@ -30,6 +32,7 @@
       "psi": 0.11614878246072882,
       "p_value": 4.0690030071384594e-08,
       "test": "KS",
+      "hors_plage": 0.0033333333333333335,
       "niveau": "modérée"
     },
     {
@@ -40,6 +43,7 @@
       "psi": 0.028549065579733007,
       "p_value": 0.5024501384685086,
       "test": "KS",
+      "hors_plage": 0.0,
       "niveau": "stable"
     },
     {
@@ -50,6 +54,7 @@
       "psi": 0.022042518956082606,
       "p_value": 0.260838373359071,
       "test": "KS",
+      "hors_plage": 0.0,
       "niveau": "stable"
     },
     {
@@ -60,6 +65,7 @@
       "psi": 0.01995694444824699,
       "p_value": 0.260838373359071,
       "test": "KS",
+      "hors_plage": 0.0,
       "niveau": "stable"
     },
     {
@@ -70,6 +76,7 @@
       "psi": 0.008251722336859866,
       "p_value": 0.6375552375873041,
       "test": "KS",
+      "hors_plage": 0.0,
       "niveau": "stable"
     },
     {
@@ -80,6 +87,7 @@
       "psi": 0.008197231258175113,
       "p_value": 0.2711843884391545,
       "test": "chi²",
+      "hors_plage": 0.0,
       "niveau": "stable"
     },
     {
@@ -90,6 +98,7 @@
       "psi": 0.005050708338892029,
       "p_value": 0.30455386097018344,
       "test": "chi²",
+      "hors_plage": 0.0,
       "niveau": "stable"
     }
   ],
