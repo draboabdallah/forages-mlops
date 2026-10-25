@@ -2,6 +2,8 @@
 
 Projet de fin de cours « Apprentissage automatique appliqué à la production ».
 
+**Groupe** : Muhammed Ramadane KOMI · Amir DRABO · Mohamed KABORE. Enseignant : Dr TIEMTORE Souleymane.
+
 Un service de l'hydraulique gère des centaines de forages ; une panne prive un village d'eau pendant des
 semaines. Ce dépôt livre un **service de prédiction** qui estime, pour chaque forage, la probabilité d'une panne
 dans les 90 jours afin de planifier les visites préventives : modèle reproductible et tracé dans MLflow, exposé par

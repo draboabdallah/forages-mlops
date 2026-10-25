@@ -202,7 +202,7 @@ def main() -> None:
            color=WHITE, bold=True)
     d.text(s, "Un service de prédiction tracé, testé, conteneurisé et surveillé, pour planifier les visites "
               "préventives des équipes de maintenance.", 0.8, 4.2, 10.5, 0.9, size=18, color=RGBColor(0xD5, 0xDD, 0xE8))
-    d.text(s, "Amir Drabo · Dr TIEMTORE Souleymane · octobre 2026", 0.8, 6.2, 11, 0.4, size=14,
+    d.text(s, "Groupe : Muhammed Ramadane KOMI · Amir DRABO · Mohamed KABORE\nEnseignant : Dr TIEMTORE Souleymane · octobre 2026", 0.8, 5.9, 11.5, 0.9, size=14,
            color=RGBColor(0x9F, 0xC3, 0xE6))
 
     # 2. Problème et métrique
